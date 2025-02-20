@@ -1,0 +1,8 @@
+TODO
+Go through program and clean up 
+add clear documentation
+set up a config file to store gmails as well as enter in file paths
+and starting pay date, which will be used initially and then dates will
+be stored as .pickle
+and set up a bat/chron file to automate it 
+Update README

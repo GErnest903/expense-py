@@ -1,8 +1,3 @@
-##TODO
-##Create Twilio text handler
-##Pass the summary string to it
-##let twilio handler break down data and prep it for sending message/sending the message
-
 import datetime
 import os.path
 import pickle
@@ -12,19 +7,21 @@ from twilio.rest import Client
 from est_Credentials import est_Credentials
 import CalHandler
 import Twilio
+from sender import Sender
 
-SCOPESC = ["https://www.googleapis.com/auth/calendar"]
+SCOPESC = ["https://www.googleapis.com/auth/calendar","https://www.googleapis.com/auth/gmail.compose"]
 
 def main():
     print("Setting Credentials")
-    credentials = est_Credentials(SCOPESC, "calToken.json", "C:/Users/Gabriel/OneDrive/Documents/ExPy/tCredential.json")
+    credentials = est_Credentials(SCOPESC, "token.json", "1"
     print("Establishing calendar")
     calHand = CalHandler.CalHandler(credentials)
-    print("Establishing Twilio")
-    twilHand = Twilio.TwilHand()
+    print("Establishing Gmail")
+    send = Sender(credentials)
 
     #Retrieves paydates, upcoming and next paydate(used as a guide for getting cal events)
     dateData = 0
+    
     with open('data.pickle', 'rb') as file:
         dateData = pickle.load(file)
     #sets dates from file
@@ -43,13 +40,13 @@ def main():
             pickle.dump(newDateData, file)
         print("Dates Written to file")
 
-    #This is going to need next next payday, so have upcoming payday and nextpayday
     headers = calHand.searchExp((payday.isoformat() + "Z"),(nextPayday.isoformat() + "Z"))
-    events = twilHand.send_events(headers)
+    events = send.send_msg( headers, "2","2")
     
     with open('log.txt', 'a') as f:
         f.write('\n')
         f.write(events)
+        f.write('\n')
         f.write(today.isoformat())
         f.write(' Success')
 
