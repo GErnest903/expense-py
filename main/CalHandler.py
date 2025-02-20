@@ -25,8 +25,6 @@ class CalHandler:
         ).execute()
         self.epEvents = epEventResults.get("items", [])
 
-        ##Delete this loop or use it to get an array for event summarys
-        #to send to text handler
         for event in self.epEvents:
           self.eventHeaders.append(event["summary"])
         return self.eventHeaders
