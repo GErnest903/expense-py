@@ -13,7 +13,7 @@ SCOPESC = ["https://www.googleapis.com/auth/calendar","https://www.googleapis.co
 
 def main():
     print("Setting Credentials")
-    credentials = est_Credentials(SCOPESC, "token.json", "1"
+    credentials = est_Credentials(SCOPESC, "token.json", "1")
     print("Establishing calendar")
     calHand = CalHandler.CalHandler(credentials)
     print("Establishing Gmail")
