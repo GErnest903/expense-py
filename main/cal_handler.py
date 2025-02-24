@@ -11,7 +11,6 @@ class cal_handler:
         self.creds = creds
         self.build = build("calendar", "v3", credentials = creds)
         self.now = datetime.datetime.utcnow().isoformat() + "Z"
-        self.epEvents = 0
         self.eventHeaders = []
 
     def searchExp(self, payd, nextPay):
@@ -26,7 +25,8 @@ class cal_handler:
         self.epEvents = epEventResults.get("items", [])
 
         for event in self.epEvents:
-          self.eventHeaders.append(event["summary"])
+            self.eventHeaders.append([event['start'].get('dateTime', event['start'].get('date')), event["summary"]])
+
         return self.eventHeaders
           
     def create_event(self, values):

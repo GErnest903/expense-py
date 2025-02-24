@@ -49,7 +49,7 @@ def main():
 
 
     #today
-    today = datetime.datetime.today()
+    today = datetime.datetime(2025,2,26)#.today()
     
     #checks to ensure that today is within 3 days of payday to send message and updates dates"
     if (today.date() == payday.date() - datetime.timedelta(days = 3)):
@@ -57,6 +57,9 @@ def main():
         calHand = cal_handler.cal_handler(credentials)
         print("Establishing Gmail", file = log)
         send = Sender(credentials)
+
+        headers = calHand.searchExp((payday.isoformat() + "Z"),(nextPayday.isoformat() + "Z"))
+        events = send.send_msg( headers, USER_EMAIL, USER_EMAIL)
 
         payday = nextPayday
         nextPayday = payday + datetime.timedelta(days = 14)
@@ -66,8 +69,6 @@ def main():
             
         print("New Dates Written to file", file = log)
         
-        headers = calHand.searchExp((payday.isoformat() + "Z"),(nextPayday.isoformat() + "Z"))
-        events = send.send_msg( headers, USER_EMAIL, USER_EMAIL)
         with open('log.txt', 'a') as f:
             f.write('\n')
             f.write(events)

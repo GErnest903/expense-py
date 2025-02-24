@@ -18,10 +18,13 @@ class Sender:
             eventList = ''
             total = 0
             for val in items:
-                payTo = val[val.find('-')+1:val.find('$')]
-                amount = val[val.find('$')+1: val.find('#')]
-                extra = val[val.find('#'):]
-                eventList +=(amount + ' to ' + payTo + ' details ' + extra + '\n')
+                date = val[0]
+                summ = val[1]
+                
+                payTo = summ[summ.find('-')+1:summ.find('$')]
+                amount = summ[summ.find('$')+1: summ.find('#')]
+                extra = summ[summ.find('#'):]
+                eventList +=(date + ' $' + amount + ' to ' + payTo + ' details ' + extra + '\n')
                 total += int(amount)
             
             eventList += 'Total Due this week: $' + str(total)
@@ -41,7 +44,7 @@ class Sender:
                     )
             print(f'Message ID: {send_message["id"]}')
         except HttpError as error:
-            print("Write a better error message")
+            print(error)
         
         return eventList
 
