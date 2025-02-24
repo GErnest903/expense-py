@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-class CalHandler:
+class cal_handler:
     def __init__(self, creds):
         self.creds = creds
         self.build = build("calendar", "v3", credentials = creds)
