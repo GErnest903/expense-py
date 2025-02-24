@@ -54,7 +54,7 @@ def main():
     #checks to ensure that today is within 3 days of payday to send message and updates dates"
     if (today.date() == payday.date() - datetime.timedelta(days = 3)):
         print("Establishing calendar", file = log)
-        calHand = cal_handler.CalHandler(credentials)
+        calHand = cal_handler.cal_handler(credentials)
         print("Establishing Gmail", file = log)
         send = Sender(credentials)
 
