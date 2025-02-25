@@ -17,8 +17,8 @@ class sender:
         try:
             eventList = ''
             total = 0
-	    #Cycles through the passed headers to unpack the data and make it more readable
-	    for val in items:
+            #Cycles through the passed headers to unpack the data and make it more readable
+            for val in items:
                 date = val[0]
                 summ = val[1]
 
