@@ -6,14 +6,14 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-class cal_handler:
+class cal_reader:
     def __init__(self, creds):
         self.creds = creds
         self.build = build("calendar", "v3", credentials = creds)
-        self.now = datetime.datetime.utcnow().isoformat() + "Z"
         self.eventHeaders = []
 
     def searchExp(self, payd, nextPay):
+	#Searches for any calendar events that start with EP- and stores them in a list paired with their date
         epEventResults = self.build.events().list(
             calendarId="primary",
             timeMin= payd,
@@ -28,26 +28,3 @@ class cal_handler:
             self.eventHeaders.append([event['start'].get('dateTime', event['start'].get('date')), event["summary"]])
 
         return self.eventHeaders
-          
-    def create_event(self, values):
-        event = {
-            'summary': values['summary'],
-            'location': values['location'],
-            'start': {
-                'dateTime': values['start_time'],
-                'timeZone': 'America/Detroit'
-                },
-            'end': {
-                'dateTime': values['end_time'],
-                'timeZone': 'America/Detroit'
-                }
-            }
-        event = self.build.events().insert(calendarId = 'primary', body = event).execute()
-        print('Event made')
-        print (event.get('htmlLink'))
-                
-            
-        
-    
-
-        

@@ -1,90 +1,98 @@
+"""
+
+
+"""
 import datetime
 import os.path
 import pickle
 import configparser
 
-from est_Credentials import est_Credentials
-import cal_handler
+from est_credentials import est_credentials
+from cal_reader import cal_reader
 
-from sender import Sender
+from sender import sender
 
 SCOPESC = ["https://www.googleapis.com/auth/calendar","https://www.googleapis.com/auth/gmail.compose"]
 
 def main():
+    #Creates log file
     log = open('log.txt', 'a')
     #Reads config file to get main client token path and users email
-    print('Reading Config', file = log)
+    print("Reading Config" + datetime.datetime.now())
     config = configparser.ConfigParser()
-    config.read("config.ini")
+    config.read('config.ini')
     CLIENT_PATH = config.get('GENERAL', 'token_path')
     USER_EMAIL = config.get('GENERAL', 'user_email')
     #tries establishing credentials using information
-    print("Setting Credentials", file = log)
-    credentials = est_Credentials(SCOPESC, "token.json", CLIENT_PATH)
+    print("Setting Credentials" + datetime.datetime.now())
+    credentials = est_Credentials(SCOPESC, 'token.json', CLIENT_PATH)
 
     #Retrieves paydates, upcoming and next paydate(used as a guide for getting cal events)
     dateData = 0
     payday = 0
+    days_between = 0
     nextPayday = 0
-    print("Setting dates", file = log)
+    print("Setting dates" + datetime.datetime.now())
     #Checks for pickle data if not reads payday from config file and 
     #establishes pickle data for next use
     try:
         with open('data.pickle', 'rb') as file:
             dateData = pickle.load(file)
+
         payday = dateData[0]
         nextPayday = dateData[1]
+	days_between = dateData[2]
     except FileNotFoundError:
-        print('no data.pickle', file = log)
-        payday = 1
-        print('Reading Config file for date', file = log)
+        print("no data.pickle " + datetime.datetime.now())
+        print("Reading Config file for dates " + datetime.datetime.now())
+
         payday = datetime.datetime.strptime(config.get('GENERAL', 'pay_date'), '%y/%m/%d')
-        nextPayday = payday + datetime.timedelta(days = int(config.get('GENERAL', 'days_between_pay')))
+	days_between = int(config.get('GENERAL', 'days_between_pay'))
+        nextPayday = payday + datetime.timedelta(days = days_between )
+
         #writes dates to a .pickle
         with open('data.pickle','wb') as file:
-            pickle.dump([payday,nextPayday], file)
-            print('.pickle Written', file = log)
+            pickle.dump([payday,nextPayday, days_between], file)
+            print(".pickle Written " + datetime.datetime.now(), file = log)
 
-    #sets dates from file
+    today = datetime.datetime.today()
 
-
-    #today
-    today = datetime.datetime(2025,2,26)#.today()
-    
     #checks to ensure that today is within 3 days of payday to send message and updates dates"
     if (today.date() == payday.date() - datetime.timedelta(days = 3)):
-        print("Establishing calendar", file = log)
-        calHand = cal_handler.cal_handler(credentials)
-        print("Establishing Gmail", file = log)
-        send = Sender(credentials)
+	#builds calendar instance
+        print("Establishing calendar " + datetime.datetime.now())
+        calHand = cal_reader(credentials)
 
-        headers = calHand.searchExp((payday.isoformat() + "Z"),(nextPayday.isoformat() + "Z"))
-        events = send.send_msg( headers, USER_EMAIL, USER_EMAIL)
+	#builds gmail instance
+        print("Establishing Gmail " + datetime.datetime.now())
+        send = sender(credentials)
+	#uses cal api to gather titles and dates for expense due dates
+        print("Gathering events " + datetime.datetime.now())
+	headers = calHand.searchExp((payday.isoformat() + "Z"),(nextPayday.isoformat() + "Z"))
+	#passes headers to sender to format and send msg
+        events = send.send_msg( headers, USER_EMAIL)
 
+	#sets next set of paydays
         payday = nextPayday
-        nextPayday = payday + datetime.timedelta(days = 14)
-        newDateData = [payday, nextPayday]
+        nextPayday = payday + datetime.timedelta(days = days_between)
+        newDateData = [payday, nextPayday, days_between]
         with open('data.pickle','wb') as file:
             pickle.dump(newDateData, file)
-            
-        print("New Dates Written to file", file = log)
-        
+
+        print("New Dates Written to file " + datetime.datetime.now(), file = log)
+
         with open('log.txt', 'a') as f:
             f.write('\n')
             f.write(events)
             f.write('\n')
             f.write(today.isoformat())
             f.write(' Success')
-    else: 
-        events = "Not soon enough to pay day Credentials Refreshed" 
+    else:
+        events = "Not soon enough to pay day Credentials Refreshed"
         print(events, file = log)
         print(today, file = log)
         print('\n', file = log)
 
-        ##DELETE TEST 
-
 
 if __name__ == "__main__":
   main()
-
-  

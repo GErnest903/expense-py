@@ -6,7 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-def est_Credentials(SCOPES, token_json, cred_json_path) :
+def est_credentials(SCOPES, token_json, cred_json_path) :
     scopes = SCOPES
     tokeJ = token_json
     credPath = cred_json_path
